@@ -1,0 +1,4 @@
+username: admin
+password: admin123
+port: 8085
+warfilename: sample.war

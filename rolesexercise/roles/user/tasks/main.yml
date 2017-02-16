@@ -1,0 +1,9 @@
+---
+
+- name: Generate passwords
+  shell: python -c 'import crypt; print crypt.crypt("{{ user_password }}", "$6$random_salt")'
+  register: genpass
+
+
+- name: Create User
+  user: name=johnd comment="John Doe" uid=1040 group=vagrant password={{genpass.stdout}}

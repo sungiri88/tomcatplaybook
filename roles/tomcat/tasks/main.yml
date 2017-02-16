@@ -1,0 +1,39 @@
+---
+
+- name: Ensure tomcat is installed
+  yum: name=tomcat state=latest
+
+- name: Copy tomcat server xml
+  template: src="server.xml.j2" dest="/usr/share/tomcat/conf/server.xml"
+  register: conf
+
+- name: Install admin Packages
+  yum: name={{item}} state=latest
+  with_items:
+     - tomcat-webapps
+     - tomcat-admin-webapps
+
+- name: Copy tomcat user conf file
+  template: src="tomcat-users.xml.j2" dest="/usr/share/tomcat/conf/tomcat-users.xml"
+  register: userconf
+
+- name: Notify handlers
+  debug: msg="notify handler"
+  notify: restart_tomcat
+  when: conf.changed or userconf.changed
+
+- meta: flush_handlers
+
+- name: Enable tomcat service
+  service: name=tomcat enabled=yes state=started
+
+- name: deploy war file
+  copy: src="/tmp/{{warfilename}}" dest="/usr/share/tomcat/webapps/{{warfilename}}" remote_src=False
+  register: deploystatus
+  tags:
+    - deploy
+
+- name: Notify tomcat to restart
+  debug: msg="notify handler"
+  notify: restart_tomcat
+  when: deploystatus.changed

@@ -1,0 +1,10 @@
+# Copy a file
+
+- hosts: all
+  sudo: yes
+
+
+  tasks:
+  
+  - name: "Copy File"
+    copy: src=inventory dest=/home/vagrant/inventory owner=vagrant group=vagrant mode=0744
